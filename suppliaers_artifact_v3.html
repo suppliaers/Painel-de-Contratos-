@@ -315,6 +315,7 @@ const DEF_C = [
   {id:'C018',fornecedor:'LinkedIn Learning + Recruiter',logo:'linkedin.com',descricao:'RH · Treinamento e recrutamento',cc:'2047',area:'RH',valor:'USD 154.750',valorSub:'(~R$ 804k)',periodicidade:'Anual antecipado',formaPagamento:'Cartão de crédito',reajuste:'Negociável ano 3',dataInicio:'2025-01-29',dataFim:'2027-01-28',obs:'<strong>Sem PO registrado.</strong> Renovação jan/2027 — negociar no 2º sem/2026.',obsTipo:'warning',encerrado:false,moeda:'USD',renovacaoAutomatica:'Não',tipoContratacao:'SaaS',statusContratacao:'Ativo'},
   {id:'C016',fornecedor:'KPMG',logo:'kpmg.com',descricao:'Consultoria · Due diligence',cc:'2020',area:'Captação',valor:'R$ 160.000',valorSub:null,periodicidade:'Pontual / projeto',formaPagamento:'Transferência',reajuste:'N/A',dataInicio:'2026-01-26',dataFim:'2026-03-15',obs:null,obsTipo:'info',encerrado:true,encerradoNote:'Projeto pontual — escopo concluído em 15/mar/2026',moeda:'BRL',tipoContratacao:'Contrato',statusContratacao:'Encerrado'},
   {id:'C022',fornecedor:'Mestiça Comunicação',logo:'mestica.com.br',razaoSocial:'MAGIC GRAPHIC PROPAGANDA LTDA',cnpj:'03.093.109/0001-09',descricao:'Agência de comunicação · Branding, plano de comunicação e gestão de social media (trade ~400 peças/mês · IG, TikTok, SAC)',cc:null,area:'Marketing',valor:'R$ 94.000',valorSub:'/mês + comissões (12% mídia/produção · 15% influenciadores)',periodicidade:'Mensal',formaPagamento:'Depósito em conta corrente (30 dias após NF emitida até dia 20)',reajuste:'Não previsto',avisoPrevio:'60 dias',multa:'3% sobre total dos últimos 12 meses',renovacaoAutomatica:'Não',dataInicio:'2025-10-01',dataFim:'2026-12-31',moeda:'BRL',tipoContratacao:'Contrato de Prestação de Serviços',statusContratacao:'Ativo',obs:'Fee fixo R$ 94k/mês + comissões variáveis sobre mídia, produção e influenciadores. Assinado via Clicksign (#9e7d475f). <strong>Aviso prévio de 60 dias para rescisão.</strong>',obsTipo:'info',encerrado:false},
+  {id:'C023',fornecedor:'ABE, Rocha Neto e Advogados',logo:'abeadvogados.com.br',razaoSocial:'ABE, ROCHA NETO E ADVOGADOS',cnpj:'86.998.135/0001-03',descricao:'Serviços jurídicos consultivos e contenciosos · Assessoria tributária',cc:null,area:'Jurídico',valor:'R$ 9.270',valorSub:'/bimestre (até 15h) + R$ 625/h excedente',periodicidade:'Bimestral',formaPagamento:'Depósito bancário (30 dias após NF)',reajuste:'IGP-M/FGV (base: mar/2025)',avisoPrevio:'30 dias',multa:'5% sobre débito em aberto + IGP-M + juros 1%/mês',renovacaoAutomatica:'Não',dataInicio:'2024-01-01',dataFim:'2026-12-31',moeda:'BRL',tipoContratacao:'Contrato de Prestação de Serviços Jurídicos',statusContratacao:'Ativo',solicitacao:'COMP-281/3795',obs:'Contrato nº 8.331/24. Inclui consultas, reuniões, memorandos, pareceres e defesas administrativas/judiciais em matéria tributária. Assinado via Clicksign (#db28ba8a).',obsTipo:'info',encerrado:false},
 ];
 const DEF_S = [
   {nome:'Cloudflare',logo:'cloudflare.com',totalBRL:1172218.90,salBRL:983434,dataFinal:'2026-08-01',cc:'2075',vcn:'...8246',moeda:'USD'},
@@ -325,7 +326,7 @@ const DEF_S = [
 ];
 
 // ─── ESTADO ──────────────────────────────────────────────────────────────────
-let C=[], S=[], nxtId=23, benchR={
+let C=[], S=[], nxtId=24, benchR={
   'C022': {
     cls: 'na',
     veredicto: 'Na média',
@@ -360,7 +361,14 @@ const brl=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maxi
 const dtFmt=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`;};
 const dias=f=>Math.ceil((new Date(f)-new Date())/86400000);
 const pct=(i,f)=>Math.min(100,Math.max(0,Math.round((new Date()-new Date(i))/(new Date(f)-new Date(i))*100)));
-const logo=d=>`https://www.google.com/s2/favicons?domain=${d}&sz=64`;
+const logo=d=>`https://logo.clearbit.com/${d}`;
+const COLORS=['#FA5300','#0A66C2','#2EB67D','#7C3AED','#D97706','#EC4899','#06B6D4','#065F46'];
+function logoHTML(domain, name, size=26){
+  const initials=(name||domain||'?').replace(/[^a-zA-ZÀ-ú\s]/g,'').trim().split(/\s+/).map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const color=COLORS[(name||'').charCodeAt(0)%COLORS.length]||'#FA5300';
+  const fallback=`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><rect width='${size}' height='${size}' rx='4' fill='${color}'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-size='${Math.round(size*0.45)}' font-weight='700'>${initials}</text></svg>`)}`;
+  return `<img src="${logo(domain)}" width="${size}" height="${size}" style="object-fit:contain;border-radius:4px" onerror="this.src='${fallback}'" loading="lazy">`;
+}
 function showTab(id){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['contratos','saas','cashflow','benchmark'][i]===id));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
@@ -406,7 +414,7 @@ function renderC(){
     const dupBadge=c._dup?'<span class="badge bp" style="margin-left:4px">🔁 Duplicata?</span>':'';
     return`<div class="ccard" id="cc-${c.id}">
       <div class="chead">
-        <div class="cicon"><img src="${logo(c.logo||'google.com')}" onerror="this.style.display='none'"></div>
+        <div class="cicon">${logoHTML(c.logo||'google.com', c.fornecedor, 26)}</div>
         <div style="flex:1;min-width:0">
           <div class="cname">${c.fornecedor}</div>
           <div class="cid">${c.id} · ${c.area||''}</div>
@@ -446,7 +454,7 @@ function renderS(){
     if(venc) alerts.push(`<div class="alert a-warn">⚠️ <strong>${p.nome}</strong> — expira em ${d>0?d+'d':'HOJE'} (${dtFmt(p.dataFinal)})</div>`);
     return`<tr>
       <td><div style="display:flex;align-items:center;gap:8px">
-        <img src="${logo(p.logo)}" style="width:24px;height:24px;object-fit:contain;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">
+        ${logoHTML(p.logo, p.nome, 24)}
         <div><div style="font-weight:700">${p.nome}</div><div style="font-size:10px;color:var(--gray-400)">${p.moeda!=='BRL'?p.moeda:''}</div></div>
       </div></td>
       <td>${brl(p.totalBRL)}</td>
@@ -960,15 +968,12 @@ async function extractPDFText(file) {
   }
 
   // ── Estratégia 3: varredura de texto legível no binário ─────────────────
-  // Funciona para PDFs não comprimidos e Clicksign/DocuSign
   if (text.trim().length < 300) {
-    // Extrai sequências de caracteres latinos legíveis (>= 5 chars consecutivos)
     const chunks = [];
     const rePrint = /[ -~\xC0-\xFF\xA0-\xBF]{5,}/g;
     let m;
     while ((m = rePrint.exec(raw)) !== null) {
       const s = m[0].trim();
-      // Filtra lixo binário: descarta se > 40% são caracteres não-alfabéticos
       const alpha = (s.match(/[a-zA-ZÀ-ú ]/g) || []).length;
       if (alpha / s.length > 0.45) chunks.push(s);
     }
@@ -981,7 +986,7 @@ async function extractPDFText(file) {
     .replace(/\\\(/g, '(').replace(/\\\)/g, ')')
     .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
-    .substring(0, 6000) // limite IPC do Electron
+    .substring(0, 6000)
     .trim();
 }
 
